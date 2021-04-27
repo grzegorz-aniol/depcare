@@ -1,0 +1,29 @@
+version: '3'
+# user: neo4j, password: admin
+services:
+  artemis:
+    image: vromero/activemq-artemis:2.16.0-alpine
+    environment:
+      - "DISABLE_SECURITY=true"
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+  neo4j:
+    image: 'neo4j:4.2'
+    ports:
+      - '7474:7474'
+      - '7473:7473'
+      - '7687:7687'
+      # ports for remote backup
+      - '6362:6362'
+    volumes:
+     - './neo4j/data:/data'
+     - './neo4j/conf:/conf'
+     - './neo4j/logs:/logs'
+     - './neo4j/metrics:/metrics'
+     - './neo4j/import:/import'
+     - './neo4j/plugins:/plugins'
+    environment:
+     - NEO4J_AUTH=none
+# "graph-algorithms", "streams", "graphql"
+#     - NEO4JLABS_PLUGINS=["apoc"]
