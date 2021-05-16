@@ -2,11 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <artifactId>depcare-parent</artifactId>
-        <groupId>org.appga</groupId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
+
+    <groupId>org.appga</groupId>
     <artifactId>depcare-suplier</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>depcare-suplier</name>
@@ -24,7 +21,13 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
+        <dependency>
+            <groupId>org.appga</groupId>
+            <artifactId>depcare-domain</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-artemis</artifactId>
@@ -36,6 +39,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-opencypher-dsl</artifactId>
+            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
@@ -58,10 +66,6 @@
             <artifactId>kotlinx-coroutines-reactor</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
         </dependency>
@@ -77,16 +81,19 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-core-jvm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json-jvm</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -108,6 +115,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.4.5</version>
             </plugin>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -135,13 +143,19 @@
                     </args>
                     <compilerPlugins>
                         <plugin>spring</plugin>
+                        <plugin>kotlinx-serialization</plugin>
                     </compilerPlugins>
-                    <jvmTarget>1.8</jvmTarget>
+                    <jvmTarget>${java.version}</jvmTarget>
                 </configuration>
                 <dependencies>
                     <dependency>
                         <groupId>org.jetbrains.kotlin</groupId>
                         <artifactId>kotlin-maven-allopen</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
                         <version>${kotlin.version}</version>
                     </dependency>
                 </dependencies>

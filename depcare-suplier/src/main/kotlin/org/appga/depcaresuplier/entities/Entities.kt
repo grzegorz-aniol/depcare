@@ -1,14 +1,21 @@
 package org.appga.depcaresuplier.entities
 
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.neo4j.core.schema.GeneratedValue
 import org.springframework.data.neo4j.core.schema.Id
 import org.springframework.data.neo4j.core.schema.Node
 import org.springframework.data.neo4j.core.schema.Property
 import org.springframework.data.neo4j.core.schema.Relationship
+import java.time.LocalDateTime
 
 @Node("Library")
 data class Library (
 	@field:Id
-	var id: String,
+	@field:GeneratedValue
+	var id: Long,
+
+	@field:CreatedDate
+	val createdAt: LocalDateTime,
 
 	@field:Property("name")
 	var name: String,
@@ -26,7 +33,11 @@ data class Library (
 @Node("LibraryVersion")
 data class LibraryVersion (
 	@field:Id
-	var id: String,
+	@field:GeneratedValue
+	var id: Long,
+
+	@field:CreatedDate
+	val createdAt: LocalDateTime,
 
 	@field:Property("name")
 	var name: String,
@@ -37,4 +48,3 @@ data class LibraryVersion (
 	@field:Property("location")
 	var location: String,
 )
-

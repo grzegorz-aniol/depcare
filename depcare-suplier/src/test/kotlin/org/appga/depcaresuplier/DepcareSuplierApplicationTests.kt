@@ -3,10 +3,10 @@ package org.appga.depcaresuplier
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 
-@SpringBootTest
+//@SpringBootTest
 class DepcareSuplierApplicationTests {
 
-	@Test
+//	@Test
 	fun contextLoads() {
 	}
 
