@@ -1,0 +1,22 @@
+<addresses>
+    <address name="repodirs">
+        <anycast>
+            <queue name="repodirs"/>
+        </anycast>
+    </address>
+    <address name="libs">
+        <anycast>
+            <queue name="libs"/>
+        </anycast>
+    </address>
+    <address name="versions">
+        <anycast>
+            <queue name="versions"/>
+        </anycast>
+    </address>
+    <address name="deps">
+        <anycast>
+            <queue name="deps"/>
+        </anycast>
+    </address>
+</addresses>
