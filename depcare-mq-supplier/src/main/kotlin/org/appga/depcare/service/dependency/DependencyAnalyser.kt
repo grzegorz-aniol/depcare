@@ -2,6 +2,8 @@ package org.appga.depcare.service.dependency
 
 import mu.KLogging
 import org.appga.depcare.clients.MvnRepoClient
+import org.appga.depcare.db.Repository
+import org.appga.depcare.domain.VersionIndication
 import org.appga.depcare.utils.forEach
 import org.appga.depcare.utils.getFirstElement
 import org.appga.depcare.utils.getFirstElementValue
@@ -9,10 +11,7 @@ import org.eclipse.microprofile.reactive.messaging.Channel
 import org.eclipse.microprofile.reactive.messaging.Emitter
 import org.eclipse.microprofile.reactive.messaging.Incoming
 import org.eclipse.microprofile.reactive.messaging.OnOverflow
-import org.neo4j.driver.Driver
-import org.neo4j.driver.Query
 import org.w3c.dom.Element
-import java.util.concurrent.atomic.AtomicLong
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
@@ -24,11 +23,9 @@ class DependencyAnalyser(
     @Inject
     private val mvnRepoClient: MvnRepoClient,
     @Inject
-    private val driver: Driver
+    private val repository: Repository
 ) {
     private companion object : KLogging()
-
-    private val dependencyCounter = AtomicLong(0L)
 
     fun postPomLink(url: String) {
         payloadEmitter.send(url)
@@ -49,16 +46,18 @@ class DependencyAnalyser(
                 val name = getFirstElementValue("name")
                 val actualVersionIndication = mergeVersionIndications(parentVersionIndication, thisVersionIndication)
                 if (!actualVersionIndication.isValid()) {
-                    logger.error { "Cannot find library group, artifact or version in POM xml" }
+                    logger.error { "Cannot find library group, artifact or version in POM xml. Url: $url" }
                     return
                 }
                 getFirstElement("dependencies")?.run {
                     getElementsByTagName("dependency")?.forEach { dep ->
                         val depIndication = getDependencyIndication(dep)
+                        // TODO: sometimes Version may not be explicitly specified.
+                        //  In such case the correct version should be determined by analyzing the parent
                         if (!depIndication.isValid()) {
-                            logger.error { "Cannot find library dependency group, artifact or version" }
+                            logger.error { "Cannot find library dependency group, artifact or version ($url)" }
                         } else {
-                            saveDependency(actualVersionIndication, depIndication)
+                            repository.saveDependency(actualVersionIndication, depIndication)
                         }
                     }
                 }
@@ -66,50 +65,6 @@ class DependencyAnalyser(
         } catch (e: Exception) {
             logger.error { "Error: ${e.message}. Url: $url" }
         }
-    }
-
-    private fun saveDependency(
-        actualVersionIndication: VersionIndication,
-        depIndication: VersionIndication
-    ) {
-        val counter = dependencyCounter.incrementAndGet()
-        logger.info { "Adding new dependency (total count: $counter)" }
-        driver.session().use { session ->
-            session.run(
-                Query(
-                    """
-						MERGE (lv:Version {artifactId: ${'$'}artifactId, groupId: ${'$'}groupId, version: ${'$'}version}) 
-						MERGE (dv: Version {artifactId: ${'$'}depArtifactId, groupId: ${'$'}depGroupId, version: ${'$'}depVersion})
-						MERGE (lv)-[d:DEPENDS_ON]->(dv)
-							ON CREATE SET d.scope=${'$'}scope, d.isOptional=${'$'}isOptional, d.type=${'$'}type
-					""".trimIndent()
-                ).withParameters(
-                    mapOf(
-                        "groupId" to actualVersionIndication.group,
-                        "artifactId" to actualVersionIndication.artifact,
-                        "version" to actualVersionIndication.version,
-                        "depGroupId" to depIndication.group,
-                        "depArtifactId" to depIndication.artifact,
-                        "depVersion" to depIndication.version,
-                        "scope" to depIndication.scope,
-                        "isOptional" to depIndication.optional,
-                        "type" to depIndication.type,
-                    )
-                )
-            )
-        }
-    }
-
-    private class VersionIndication(
-        val group: String?,
-        val artifact: String?,
-        val version: String?,
-        val scope: String? = null,
-        val optional: Boolean? = false,
-        val type: String? = null
-    ) {
-        fun isValid(): Boolean =
-            (group?.isNotBlank() ?: false && artifact?.isNotBlank() ?: false && version?.isNotBlank() ?: false)
     }
 
     private fun getVersionIndication(element: Element): VersionIndication {

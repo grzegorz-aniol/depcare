@@ -2,6 +2,7 @@ package org.appga.depcare.domain
 
 import kotlinx.serialization.Serializable
 import java.net.URL
+import java.time.LocalDateTime
 
 @Serializable
 data class MavenRepo(val name: String, val rootPath: String)
@@ -48,3 +49,22 @@ data class MvnLibraryDir(
 @Serializable
 data class MvnVersionDir(override val url: String, val groupId: String, val artifactId: String, val version: String) :
     MvnRepoDir()
+
+data class LibraryMetadata(
+    val latest: String? = null,
+    val release: String? = null,
+    val lastUpdated: LocalDateTime? = null,
+    val versionsCount: Int? = null,
+)
+
+class VersionIndication(
+    val group: String?,
+    val artifact: String?,
+    val version: String?,
+    val scope: String? = null,
+    val optional: Boolean? = false,
+    val type: String? = null
+) {
+    fun isValid(): Boolean =
+        (group?.isNotBlank() ?: false && artifact?.isNotBlank() ?: false && version?.isNotBlank() ?: false)
+}

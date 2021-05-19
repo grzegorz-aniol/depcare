@@ -1,7 +1,6 @@
 package org.appga.depcare.service.repo
 
 import mu.KLogging
-import org.appga.depcare.clients.MvnRepoClient
 import org.appga.depcare.domain.JvmLibrary
 import org.appga.depcare.domain.JvmLibraryVersion
 import org.appga.depcare.domain.MvnGroupDir
