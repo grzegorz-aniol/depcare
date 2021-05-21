@@ -88,7 +88,7 @@ class Repository(
                 Query(
                     """
                         MERGE (lv:Version {artifactId: ${'$'}artifactId, groupId: ${'$'}groupId, version: ${'$'}version})		
-                            ON CREATE SET lv.url=${'$'}versionUrl
+                            ON CREATE SET lv.url=${'$'}versionUrl, lv.createdAt=${'$'}createdAt
                         MERGE (l:Library {groupId: ${'$'}groupId, artifactId: ${'$'}artifactId})
                             ON CREATE set l.url=${'$'}libUrl
                         MERGE (lv)-[:VERSION_OF]->(l)
@@ -99,7 +99,8 @@ class Repository(
                         "groupId" to jvmLibraryVersion.library.groupId,
                         "version" to jvmLibraryVersion.version,
                         "versionUrl" to jvmLibraryVersion.url,
-                        "libUrl" to jvmLibraryVersion.library.url
+                        "libUrl" to jvmLibraryVersion.library.url,
+                        "createdAt" to jvmLibraryVersion.createdAt,
                     )
                 )
             )

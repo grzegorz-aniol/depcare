@@ -7,4 +7,5 @@
 * log errors
 * log number of created nodes, relations
 
+3. Store exclusions for dependency
 

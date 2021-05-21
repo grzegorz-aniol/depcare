@@ -1,8 +1,26 @@
 package org.appga.depcare.domain
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import java.net.URL
 import java.time.LocalDateTime
+import java.time.ZoneOffset
+
+open class LocalDateTimeSerializer : KSerializer<LocalDateTime> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("java.time.LocalDateTime", PrimitiveKind.LONG)
+    override fun deserialize(decoder: Decoder): LocalDateTime {
+        return LocalDateTime.ofEpochSecond(decoder.decodeLong(), 0, ZoneOffset.UTC)
+    }
+
+    override fun serialize(encoder: Encoder, value: LocalDateTime) {
+        encoder.encodeLong(value.toEpochSecond(ZoneOffset.UTC))
+    }
+}
 
 @Serializable
 data class MavenRepo(val name: String, val rootPath: String)
@@ -20,7 +38,9 @@ data class JvmLibrary(
 data class JvmLibraryVersion(
     val library: JvmLibrary,
     val version: String,
-    val url: String
+    val url: String,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val createdAt: LocalDateTime? = null,
 )
 
 operator fun URL.plus(path: String): URL {
@@ -47,8 +67,14 @@ data class MvnLibraryDir(
 ) : MvnRepoDir()
 
 @Serializable
-data class MvnVersionDir(override val url: String, val groupId: String, val artifactId: String, val version: String) :
-    MvnRepoDir()
+data class MvnVersionDir(
+    override val url: String,
+    val groupId: String,
+    val artifactId: String,
+    val version: String,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val createdAt: LocalDateTime? = null,
+) : MvnRepoDir()
 
 data class LibraryMetadata(
     val latest: String? = null,

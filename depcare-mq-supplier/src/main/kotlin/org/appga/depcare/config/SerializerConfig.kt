@@ -13,17 +13,17 @@ import javax.inject.Singleton
 @Singleton
 class SerializerConfig {
 
-	val json: Json
+    val json: Json
 
-	init {
-		val projectModule = SerializersModule {
-			polymorphic(MvnRepoDir::class) {
-				subclass(MvnRootDir::class, MvnRootDir.serializer())
-				subclass(MvnGroupDir::class, MvnGroupDir.serializer())
-				subclass(MvnLibraryDir::class, MvnLibraryDir.serializer())
-				subclass(MvnVersionDir::class, MvnVersionDir.serializer())
-			}
-		}
-		json = Json { serializersModule = projectModule }
-	}
+    init {
+        val projectModule = SerializersModule {
+            polymorphic(MvnRepoDir::class) {
+                subclass(MvnRootDir::class, MvnRootDir.serializer())
+                subclass(MvnGroupDir::class, MvnGroupDir.serializer())
+                subclass(MvnLibraryDir::class, MvnLibraryDir.serializer())
+                subclass(MvnVersionDir::class, MvnVersionDir.serializer())
+            }
+        }
+        json = Json { serializersModule = projectModule }
+    }
 }

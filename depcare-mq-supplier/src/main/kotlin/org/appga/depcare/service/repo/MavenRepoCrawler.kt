@@ -32,7 +32,6 @@ class MavenRepoCrawler(
 ) {
     private companion object : KLogging()
 
-    private val regexVersionDir = Regex("\\d+\\.\\d+(\\.[\\w\\d]+)*/")
     private val totalLibraries = AtomicLong()
     private val totalVersions = AtomicLong()
 
@@ -106,7 +105,8 @@ class MavenRepoCrawler(
                                                 metadataUrl = repoDir.url + MAVEN_METADATA_FILE
                                             ),
                                             version = repoDir.version,
-                                            url = entryLink
+                                            url = entryLink,
+                                            createdAt = repoDir.createdAt,
                                         )
                                         libraryVersionMsgProducer.postMessage(libraryVersion)
                                     }
@@ -141,10 +141,9 @@ class MavenRepoCrawler(
     private fun buildMvnRepoObject(pageContent: PageContent): MvnRepoDir {
         val rootDirFiles = listOf(ARCHETYPE_CATALOG_NAME, ROBOTS_FILE_NAME)
         val metadataFiles = pageContent.links.filter { it.startsWith(MAVEN_METADATA_FILE) }.toList()
-        val versionDirs = pageContent.links.any { it.matches(regexVersionDir) }
         return when {
             pageContent.links.any { rootDirFiles.contains(it) } -> MvnRootDir(url = pageContent.url)
-            versionDirs && metadataFiles.isNotEmpty() -> {
+            metadataFiles.isNotEmpty() -> {
                 val packageName = pageContent.header.substringBeforeLast("/").replace('/', '.')
                 val libraryName = pageContent.header.substringAfterLast("/")
                 MvnLibraryDir(
@@ -159,11 +158,13 @@ class MavenRepoCrawler(
                 val groupName = groupNameWithArtifactName.substringBeforeLast("/").replace('/', '.')
                 val artifactName = groupNameWithArtifactName.substringAfterLast("/")
                 val version = pageContent.header.substringAfterLast("/")
+                val publicationDateTime = pageContent.files.values.firstOrNull()
                 MvnVersionDir(
                     url = pageContent.url,
                     groupId = groupName,
                     artifactId = artifactName,
-                    version = version
+                    version = version,
+                    createdAt = publicationDateTime,
                 )
             }
             else -> {
