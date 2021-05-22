@@ -12,6 +12,8 @@ import org.eclipse.microprofile.reactive.messaging.Emitter
 import org.eclipse.microprofile.reactive.messaging.Incoming
 import org.eclipse.microprofile.reactive.messaging.Message
 import org.eclipse.microprofile.reactive.messaging.OnOverflow
+import java.lang.Integer.max
+import java.lang.Integer.min
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
@@ -29,7 +31,7 @@ class RepoDirsProcessor(
         try {
             mavenRepoCrawler.analyseRepoDirContent(url).forEach {
                 val metadata = OutgoingAmqpMetadata.builder()
-                    .withPriority(getMessagePriority(it))
+                    .withPriority(getMessagePriority(it).toShort())
                     .build()
                 val message = Message.of(it.url, org.eclipse.microprofile.reactive.messaging.Metadata.of(metadata))
                 payloadEmitter.send(message)
@@ -41,13 +43,7 @@ class RepoDirsProcessor(
 
     /** The highest message priority is for lower directories.
      * As a result the tree crawler's traversal is BFS */
-    fun getMessagePriority(dir: MvnRepoDir): Short {
-        return when (dir) {
-            is MvnRootDir -> 0
-            is MvnGroupDir -> 1
-            is MvnLibraryDir -> 2
-            is MvnVersionDir -> 3
-            else -> 0
-        }
+    fun getMessagePriority(dir: MvnRepoDir): Int {
+        return min(max(0, dir.level), 9)
     }
 }

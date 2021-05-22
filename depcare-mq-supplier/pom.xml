@@ -204,24 +204,25 @@
           </pluginOptions>
         </configuration>
       </plugin>
-<!--      <plugin>-->
-<!--        <groupId>org.liquigraph</groupId>-->
-<!--        <artifactId>liquigraph-maven-plugin</artifactId>-->
-<!--        <version>4.0.2</version>-->
-<!--        <configuration>-->
-<!--          <changelog>changelog.xml</changelog>&lt;!&ndash; classpath location &ndash;&gt;-->
-<!--          <jdbcUri>jdbc:neo4j:http://localhost:7474</jdbcUri>-->
-<!--        </configuration>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <id>run-migrations</id>-->
-<!--            <goals>-->
-<!--              <goal>dry-run</goal>-->
-<!--              <goal>run</goal>-->
-<!--            </goals>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--      </plugin>-->
+      <plugin>
+        <groupId>org.liquigraph</groupId>
+        <artifactId>liquigraph-maven-plugin</artifactId>
+        <version>4.0.2</version>
+        <configuration>
+          <changelog>changelog.xml</changelog><!-- classpath location -->
+          <jdbcUri>jdbc:neo4j:http://localhost:7474</jdbcUri>
+        </configuration>
+        <executions>
+          <execution>
+            <id>run-migrations</id>
+            <phase>none</phase>
+            <goals>
+              <goal>dry-run</goal>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <profiles>

@@ -18,8 +18,8 @@ class Repository(
     private companion object : KLogging()
 
     fun saveDependency(
-        actualVersionIndication: VersionIndication,
-        depIndication: VersionIndication
+        actualVersion: VersionIndication,
+        dependency: VersionIndication
     ) {
         logger.debug { "Adding new dependency" }
         driver.session().use { session ->
@@ -33,19 +33,73 @@ class Repository(
 					""".trimIndent()
                 ).withParameters(
                     mapOf(
-                        "groupId" to actualVersionIndication.group,
-                        "artifactId" to actualVersionIndication.artifact,
-                        "version" to actualVersionIndication.version,
-                        "depGroupId" to depIndication.group,
-                        "depArtifactId" to depIndication.artifact,
-                        "depVersion" to depIndication.version,
-                        "scope" to depIndication.scope,
-                        "isOptional" to depIndication.optional,
-                        "type" to depIndication.type,
+                        "groupId" to actualVersion.groupId,
+                        "artifactId" to actualVersion.artifactId,
+                        "version" to actualVersion.version,
+                        "depGroupId" to dependency.groupId,
+                        "depArtifactId" to dependency.artifactId,
+                        "depVersion" to dependency.version,
+                        "scope" to dependency.scope,
+                        "isOptional" to dependency.optional,
+                        "type" to dependency.type,
                     )
                 )
             )
         }
+    }
+
+    fun saveTransitiveDependency(
+        actualVersion: VersionIndication,
+        dependency: VersionIndication
+    ) {
+        logger.debug { "Adding transitive dependency from $actualVersion to $dependency" }
+        driver.session().use { session ->
+            session.run(
+                Query(
+                    """
+ 					    MERGE (v:Version {artifactId: ${'$'}artifactId, groupId: ${'$'}groupId, version: ${'$'}version}) 
+ 						MERGE (ol:Library {artifactId: ${'$'}depArtifactId, groupId: ${'$'}depGroupId}) 
+                        MERGE (v)-[t:TRANS_DEP_ON]->(ol)
+                    """.trimIndent()
+                ).withParameters(
+                    mapOf(
+                        "groupId" to actualVersion.groupId,
+                        "artifactId" to actualVersion.artifactId,
+                        "version" to actualVersion.version,
+                        "depGroupId" to dependency.groupId,
+                        "depArtifactId" to dependency.artifactId,
+                    )
+                )
+            )
+        }
+    }
+
+    fun saveParentProject(
+        actualVersion: VersionIndication,
+        parentVersion: VersionIndication,
+    ) {
+        logger.debug { "Adding parent relation from $actualVersion to $parentVersion" }
+        driver.session().use { session ->
+            session.run(
+                Query(
+                    """
+ 					    MERGE (v:Version {artifactId: ${'$'}artifactId, groupId: ${'$'}groupId, version: ${'$'}version}) 
+ 						MERGE (pv:Version {artifactId: ${'$'}parentArtifactId, groupId: ${'$'}parentGroupId, version: ${'$'}parentVersion}) 
+                        MERGE (pv)-[t:PARENT_OF]->(v)
+                    """.trimIndent()
+                ).withParameters(
+                    mapOf(
+                        "groupId" to actualVersion.groupId,
+                        "artifactId" to actualVersion.artifactId,
+                        "version" to actualVersion.version,
+                        "parentGroupId" to parentVersion.groupId,
+                        "parentArtifactId" to parentVersion.artifactId,
+                        "parentVersion" to parentVersion.version,
+                    )
+                )
+            )
+        }
+
     }
 
     fun saveLibrary(jvmLibrary: JvmLibrary, metadata: LibraryMetadata) {
