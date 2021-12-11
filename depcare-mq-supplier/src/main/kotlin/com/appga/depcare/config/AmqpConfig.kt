@@ -10,7 +10,7 @@ class AmqpConfig {
 
 	@Produces
 	@Named("amqp-options")
-	fun getNamedOptions(): AmqpClientOptions? {
+	fun getNamedOptions(): AmqpClientOptions {
 		return AmqpClientOptions()
 			.setHost("localhost")
 			.setPort(61616)

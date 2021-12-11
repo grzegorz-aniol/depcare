@@ -6,7 +6,7 @@
 
     <parent>
         <artifactId>depcare-parent</artifactId>
-        <groupId>com.appga</groupId>
+        <groupId>com.appga.depcare</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>depcare-domain</artifactId>

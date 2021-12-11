@@ -1,22 +1,20 @@
-package com.appga.depcare.service.version
+package com.appga.depcare.supplier.kafka
 
-import kotlinx.serialization.DeserializationStrategy
-import mu.KLogging
-import com.appga.depcare.config.SerializerConfig
 import com.appga.depcare.db.Repository
 import com.appga.depcare.domain.JvmLibraryVersion
-import com.appga.depcare.service.dependency.DependencyAnalyser
-import org.eclipse.microprofile.reactive.messaging.Incoming
-import javax.enterprise.context.ApplicationScoped
-import javax.inject.Inject
+import com.appga.depcare.supplier.configuration.KafkaTopics
+import com.appga.depcare.supplier.configuration.SerializerConfiguration
+import com.appga.depcare.supplier.service.DependencyAnalyser
+import kotlinx.serialization.DeserializationStrategy
+import mu.KLogging
+import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.messaging.handler.annotation.Payload
+import org.springframework.stereotype.Component
 
-@ApplicationScoped
+@Component
 class LibraryVersionMsgConsumer(
-    @Inject
-    private val config: SerializerConfig,
-    @Inject
+    private val config: SerializerConfiguration,
     private val repository: Repository,
-	@Inject
 	private val dependencyAnalyser: DependencyAnalyser,
 
 ) {
@@ -24,8 +22,8 @@ class LibraryVersionMsgConsumer(
 
     private companion object : KLogging()
 
-    @Incoming("in-versions")
-    fun process(payload: String) {
+	@KafkaListener(topics = [KafkaTopics.TOPIC_VERSIONS])
+    fun process(@Payload payload: String) {
         logger.info { "Consumer: library version message" }
         val jvmLibraryVersion = deserializePayload(payload)
         try {
@@ -41,6 +39,6 @@ class LibraryVersionMsgConsumer(
     }
 
     private fun deserializePayload(payload: String): JvmLibraryVersion {
-        return config.json.decodeFromString(deserializer, payload)
+        return config.jsonSerializer().decodeFromString(deserializer, payload)
     }
 }

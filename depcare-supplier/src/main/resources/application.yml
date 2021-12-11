@@ -1,0 +1,20 @@
+spring:
+ kafka:
+    consumer:
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+server:
+  port: 8082
+logging:
+  level:
+    root: WARN
+    org.springframework: WARN
+    com.appga.depcare: DEBUG
+    edu.uci.ics.crawler4j: WARN
+management:
+  endpoint:
+    metrics.enabled: true
+    prometheus.enabled: true
+  endpoints:
+    web.exposure.include: health,info,prometheus
+  metrics.export.prometheus.enabled: true

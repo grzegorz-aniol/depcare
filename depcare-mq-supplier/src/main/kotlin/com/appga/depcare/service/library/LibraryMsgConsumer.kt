@@ -31,13 +31,13 @@ class LibraryMsgConsumer(
 
     @Incoming("in-libs")
     fun process(payload: String) {
-        logger.debug { "Consumer: library message" }
+        logger.info { "Consumer: library message" }
         try {
             val jvmLibrary = deserializePayload(payload)
             val metadata = fetchMetaFile(jvmLibrary)
             repository.saveLibrary(jvmLibrary, metadata)
         } catch (ex: Exception) {
-            logger.error { ex.message }
+            logger.error("Error processing library payload: $payload", ex.message)
         }
     }
 

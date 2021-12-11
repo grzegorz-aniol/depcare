@@ -1,37 +1,31 @@
-package com.appga.depcare.service.dependency
+package com.appga.depcare.supplier.service
 
-import mu.KLogging
-import com.appga.depcare.clients.MvnRepoClient
 import com.appga.depcare.db.Repository
 import com.appga.depcare.domain.VersionIndication
+import com.appga.depcare.supplier.clients.MvnRepoClient
+import com.appga.depcare.supplier.configuration.KafkaTopics
 import com.appga.depcare.utils.forEach
 import com.appga.depcare.utils.getFirstElement
 import com.appga.depcare.utils.getFirstElementValue
-import org.eclipse.microprofile.reactive.messaging.Channel
-import org.eclipse.microprofile.reactive.messaging.Emitter
-import org.eclipse.microprofile.reactive.messaging.Incoming
-import org.eclipse.microprofile.reactive.messaging.OnOverflow
+import mu.KLogging
+import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.stereotype.Service
 import org.w3c.dom.Element
-import javax.enterprise.context.ApplicationScoped
-import javax.inject.Inject
 
-@ApplicationScoped
+@Service
 class DependencyAnalyser(
-	@Channel("out-deps")
-	@OnOverflow(value = OnOverflow.Strategy.BUFFER, bufferSize = 10)
-	private val payloadEmitter: Emitter<String>,
-	@Inject
+	private val kafkaTemplate: KafkaTemplate<String, String>,
 	private val mvnRepoClient: MvnRepoClient,
-	@Inject
 	private val repository: Repository
 ) {
 	private companion object : KLogging()
 
 	fun postPomLink(url: String) {
-		payloadEmitter.send(url)
+		kafkaTemplate.send(KafkaTopics.TOPIC_DEPS, url)
 	}
 
-	@Incoming("in-deps")
+	@KafkaListener(topics = [KafkaTopics.TOPIC_DEPS])
 	protected fun consumer(url: String) {
 		try {
 			logger.info { "Dependency analysis for $url" }

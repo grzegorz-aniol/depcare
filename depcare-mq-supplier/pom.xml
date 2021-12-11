@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.appga</groupId>
+    <groupId>com.appga.depcare</groupId>
     <artifactId>depcare-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
@@ -30,7 +30,7 @@
   </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>com.appga</groupId>
+      <groupId>com.appga.depcare</groupId>
       <artifactId>depcare-domain</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
@@ -123,6 +123,10 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-cache</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-logging-gelf</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <sourceDirectory>src/main/kotlin</sourceDirectory>
@@ -208,10 +212,6 @@
         <groupId>org.liquigraph</groupId>
         <artifactId>liquigraph-maven-plugin</artifactId>
         <version>4.0.2</version>
-        <configuration>
-          <changelog>changelog.xml</changelog><!-- classpath location -->
-          <jdbcUri>jdbc:neo4j:http://localhost:7474</jdbcUri>
-        </configuration>
         <executions>
           <execution>
             <id>run-migrations</id>
@@ -222,6 +222,10 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <changelog>changelog.xml</changelog>
+          <jdbcUri>jdbc:neo4j:http://localhost:7474</jdbcUri>
+        </configuration>
       </plugin>
     </plugins>
   </build>
