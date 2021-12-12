@@ -27,19 +27,17 @@ class MavenRepoCrawler(
 
 	private val logger = KotlinLogging.logger {}
 
-	private val urlEndingWithoutFileExtension = Regex("^.+\\/[^\\/^\\.]+\\/?$")
-
-	private val regexIgnoreLinks = Regex(".*(\\.(asc|jar|xml|htm|html|css|php|jpg|jpeg|png|gif))$")
+	private val regexAcceptLinks = Regex(".*(\\.xml)$")
 
 	override fun shouldVisit(referringPage: Page?, url: WebURL?): Boolean {
 		val href = url!!.url.toLowerCase()
 		val domain = referringPage!!.webURL.domain
-		val isAcceptableLink = href.endsWith("/") || !regexIgnoreLinks.matches(href)
+		val isAcceptableLink = href.endsWith("/") || regexAcceptLinks.matches(href)
 		val isSameDomain = href.contains(domain, ignoreCase = true)
 		val isSubDir = href.startsWith(referringPage.webURL.url)
 		val shouldVisit = isAcceptableLink && isSameDomain && isSubDir
 		if (!shouldVisit) {
-			logger.debug { "Link won't be visited: $href" }
+			logger.debug { "Link to skip: $href" }
 		}
 		return shouldVisit
 	}
@@ -131,7 +129,7 @@ class MavenRepoCrawler(
 				val version = pageContent.header.substringAfterLast("/")
 				val publicationDateTime = pageContent.files.entries.mapNotNull { it.value.createdAt }.firstOrNull()
 				val jarLink = pageContent.findJarLink()
-				val pomLink = pageContent.findJarLink()
+				val pomLink = pageContent.findPomLink()
 				val jarFileName = jarLink?.trim('/')
 				require(jarLink != null && jarFileName != null) { "Cannot find JAR name in the version folder ${pageContent.url}" }
 				val packageFileSize = pageContent.files[jarFileName]?.size

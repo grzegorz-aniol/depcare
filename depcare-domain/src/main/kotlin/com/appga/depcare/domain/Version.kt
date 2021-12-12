@@ -16,7 +16,7 @@ data class JvmLibraryVersion(
 	val fileSize: Long? = null
 )
 
-class VersionIndication(
+data class VersionIndication(
 	val groupId: String?,
 	val artifactId: String?,
 	val version: String?,

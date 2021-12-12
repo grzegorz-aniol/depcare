@@ -3,6 +3,7 @@ spring:
     consumer:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      group-id: depcare-supplier-group
 server:
   port: 8082
 logging:

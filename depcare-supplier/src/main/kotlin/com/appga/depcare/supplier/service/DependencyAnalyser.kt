@@ -1,12 +1,12 @@
 package com.appga.depcare.supplier.service
 
-import com.appga.depcare.db.Repository
 import com.appga.depcare.domain.VersionIndication
 import com.appga.depcare.supplier.clients.MvnRepoClient
 import com.appga.depcare.supplier.configuration.KafkaTopics
-import com.appga.depcare.utils.forEach
-import com.appga.depcare.utils.getFirstElement
-import com.appga.depcare.utils.getFirstElementValue
+import com.appga.depcare.supplier.db.Repository
+import com.appga.depcare.supplier.utils.forEach
+import com.appga.depcare.supplier.utils.getFirstElement
+import com.appga.depcare.supplier.utils.getFirstElementValue
 import mu.KLogging
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.core.KafkaTemplate

@@ -1,6 +1,6 @@
 package com.appga.depcare.supplier.clients
 
-import com.appga.depcare.utils.Metrics
+import com.appga.depcare.supplier.utils.Metrics
 import mu.KLogging
 import okhttp3.OkHttpClient
 import okhttp3.Request

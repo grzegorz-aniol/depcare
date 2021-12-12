@@ -18,8 +18,8 @@ class MavenCrawlController(
 
 	@PostConstruct
 	fun onStart() {
-		logger.info("Starting crawler controller")
-		crawlController.startNonBlocking(crawlerFactory, 1)
+		logger.info("Starting crawler")
+		crawlController.startNonBlocking(crawlerFactory, 1);
 	}
 
 	@PreDestroy
@@ -32,5 +32,9 @@ class MavenCrawlController(
 	fun postPath(@RequestBody path: String) {
 		logger.debug { "Pushing new url for crawler: $path" }
 		crawlController.addSeed(path)
+		if (crawlController.isFinished) {
+			logger.info("Starting crawler")
+			crawlController.startNonBlocking(crawlerFactory, 1);
+		}
 	}
 }

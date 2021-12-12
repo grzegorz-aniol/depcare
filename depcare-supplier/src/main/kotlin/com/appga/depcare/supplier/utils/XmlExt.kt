@@ -1,4 +1,4 @@
-package com.appga.depcare.utils
+package com.appga.depcare.supplier.utils
 
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList

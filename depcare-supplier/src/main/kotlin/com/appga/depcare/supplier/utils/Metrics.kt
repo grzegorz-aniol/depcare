@@ -1,4 +1,4 @@
-package com.appga.depcare.utils
+package com.appga.depcare.supplier.utils
 
 import mu.KLogging
 import org.springframework.stereotype.Component

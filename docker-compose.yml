@@ -29,14 +29,6 @@ services:
     depends_on:
       - elasticsearch
 
-#  artemis:
-#    image: vromero/activemq-artemis:2.16.0-alpine
-#    environment:
-#      - "DISABLE_SECURITY=true"
-#    ports:
-#      - "61616:61616"
-#      - "8161:8161"
-
   zookeeper:
     image: confluentinc/cp-zookeeper:6.1.0
     environment:

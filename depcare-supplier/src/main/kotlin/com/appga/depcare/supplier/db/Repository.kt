@@ -1,4 +1,4 @@
-package com.appga.depcare.db
+package com.appga.depcare.supplier.db
 
 import com.appga.depcare.domain.JvmLibrary
 import com.appga.depcare.domain.JvmLibraryVersion
@@ -17,7 +17,7 @@ class Repository(private val driver: Driver) {
         actualVersion: VersionIndication,
         dependency: VersionIndication
     ) {
-        logger.debug { "Adding new dependency" }
+        logger.debug { "Adding new dependency. ActualVersion: $dependency, dependency: $dependency" }
         driver.session().use { session ->
             session.run(
                 Query(
@@ -100,7 +100,7 @@ class Repository(private val driver: Driver) {
 
     fun saveLibrary(jvmLibrary: JvmLibrary, metadata: LibraryMetadata) {
         driver.session().use { session ->
-            logger.debug { "Adding library" }
+            logger.debug { "Adding library: $jvmLibrary" }
             session.run(
                 Query(
                     """
@@ -133,7 +133,7 @@ class Repository(private val driver: Driver) {
 
     fun saveLibraryVersion(jvmLibraryVersion: JvmLibraryVersion) {
         driver.session().use { session ->
-            logger.info { "Adding library version" }
+            logger.info { "Adding library version: $jvmLibraryVersion" }
             session.run(
                 Query(
                     """

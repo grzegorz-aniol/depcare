@@ -1,9 +1,9 @@
 package com.appga.depcare.supplier.kafka
 
-import com.appga.depcare.db.Repository
 import com.appga.depcare.domain.JvmLibraryVersion
 import com.appga.depcare.supplier.configuration.KafkaTopics
 import com.appga.depcare.supplier.configuration.SerializerConfiguration
+import com.appga.depcare.supplier.db.Repository
 import com.appga.depcare.supplier.service.DependencyAnalyser
 import kotlinx.serialization.DeserializationStrategy
 import mu.KLogging
