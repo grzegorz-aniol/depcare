@@ -1,25 +1,20 @@
 package com.appga.depcare.crawler
 
 import edu.uci.ics.crawler4j.crawler.CrawlController
-import org.springframework.beans.factory.FactoryBean
+import mu.KotlinLogging
+import org.springframework.beans.factory.BeanFactory
 import org.springframework.stereotype.Component
 
 @Component
 class MavenRepoCrawlerFactory(
-	private val pageAnalyzer: PageAnalyzer,
-	private val libraryQueueProducer: LibraryQueueProducer,
-	private val libraryVersionQueueProducer: LibraryVersionQueueProducer,
-) : CrawlController.WebCrawlerFactory<MavenRepoCrawler>, FactoryBean<MavenRepoCrawler> {
+	private val beanFactory: BeanFactory,
+) : CrawlController.WebCrawlerFactory<MavenRepoCrawler> {
+
+	private val logger = KotlinLogging.logger {}
 
 	override fun newInstance(): MavenRepoCrawler {
-		return MavenRepoCrawler(pageAnalyzer, libraryQueueProducer, libraryVersionQueueProducer)
+		logger.debug { "Requesting new crawler instance" }
+		return beanFactory.getBean("mavenRepoCrawler", MavenRepoCrawler::class.java)
 	}
 
-	override fun getObject(): MavenRepoCrawler? {
-		return newInstance()
-	}
-
-	override fun getObjectType(): Class<*>? {
-		return MavenRepoCrawler::class.java
-	}
 }

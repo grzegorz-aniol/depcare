@@ -4,6 +4,7 @@ import com.appga.depcare.domain.JvmLibrary
 import com.appga.depcare.domain.JvmLibraryVersion
 import com.appga.depcare.domain.LibraryMetadata
 import com.appga.depcare.domain.VersionIndication
+import io.micrometer.core.annotation.Timed
 import mu.KLogging
 import org.neo4j.driver.Driver
 import org.neo4j.driver.Query
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component
 class Repository(private val driver: Driver) {
     private companion object : KLogging()
 
+    @Timed("repository.save-dependency")
     fun saveDependency(
         actualVersion: VersionIndication,
         dependency: VersionIndication
@@ -44,6 +46,7 @@ class Repository(private val driver: Driver) {
         }
     }
 
+    @Timed("repository.save-trans-dependency")
     fun saveTransitiveDependency(
         actualVersion: VersionIndication,
         dependency: VersionIndication
@@ -70,6 +73,7 @@ class Repository(private val driver: Driver) {
         }
     }
 
+    @Timed("repository.save-parent-project")
     fun saveParentProject(
         actualVersion: VersionIndication,
         parentVersion: VersionIndication,
@@ -98,6 +102,7 @@ class Repository(private val driver: Driver) {
 
     }
 
+    @Timed("repository.save-library")
     fun saveLibrary(jvmLibrary: JvmLibrary, metadata: LibraryMetadata) {
         driver.session().use { session ->
             logger.debug { "Adding library: $jvmLibrary" }
@@ -131,6 +136,7 @@ class Repository(private val driver: Driver) {
         }
     }
 
+    @Timed("repository.save-version")
     fun saveLibraryVersion(jvmLibraryVersion: JvmLibraryVersion) {
         driver.session().use { session ->
             logger.info { "Adding library version: $jvmLibraryVersion" }

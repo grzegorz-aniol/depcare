@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 10s
+
+scrape_configs:
+  - job_name: 'spring_micrometer'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['172.17.0.1:8081','172.17.0.1:8082','172.17.0.1:8083', '172.17.0.1:8084', '172.17.0.1:8085']

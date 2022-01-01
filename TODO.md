@@ -8,3 +8,5 @@
 
 3. Store exclusions for dependency
 
+4. Resolve properties into version numbers (property may be defined in current POM or in parent POM!)
+

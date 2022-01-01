@@ -1,4 +1,4 @@
-package com.appga.depcare.crawler.configuration
+package com.appga.depcare.supplier.configuration
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -9,21 +9,23 @@ private val NUM_PARTITIONS = 16
 @Configuration
 class KafkaConfiguration {
 
-	enum class KafkaQueues(val queueName: String) {
-		LIBS("libs"),
-		VERSIONS("versions")
-	}
-
 	@Bean
 	fun libsTopic() =
-		TopicBuilder.name(KafkaQueues.LIBS.queueName)
+		TopicBuilder.name(KafkaTopics.TOPIC_LIBS)
 			.partitions(NUM_PARTITIONS)
 			.replicas(1)
 			.build()
 
 	@Bean
 	fun versionsTopic() =
-		TopicBuilder.name(KafkaQueues.VERSIONS.queueName)
+		TopicBuilder.name(KafkaTopics.TOPIC_VERSIONS)
+			.partitions(NUM_PARTITIONS)
+			.replicas(1)
+			.build()
+
+	@Bean
+	fun depsTopic() =
+		TopicBuilder.name(KafkaTopics.TOPIC_DEPS)
 			.partitions(NUM_PARTITIONS)
 			.replicas(1)
 			.build()

@@ -1,6 +1,7 @@
 package com.appga.depcare.crawler
 
 import com.appga.depcare.crawler.configuration.KafkaConfiguration
+import com.appga.depcare.crawler.metrics.MetricsService
 import com.appga.depcare.domain.JvmLibraryVersion
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.json.Json
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component
 class LibraryVersionQueueProducer(
 	private val kafkaTemplate: KafkaTemplate<String, String>,
 	private val jsonSerializable: Json,
+	private val metricsService: MetricsService
 ) {
 	private val logger = KotlinLogging.logger { }
 	private val serializer: SerializationStrategy<JvmLibraryVersion> = JvmLibraryVersion.serializer()
@@ -20,5 +22,6 @@ class LibraryVersionQueueProducer(
 		logger.debug { "Sending payload with library version object" }
 		val payload = jsonSerializable.encodeToString(serializer, libraryVersion)
 		kafkaTemplate.send(KafkaConfiguration.KafkaQueues.VERSIONS.queueName, payload)
+		metricsService.tickVersionsCounter()
 	}
 }

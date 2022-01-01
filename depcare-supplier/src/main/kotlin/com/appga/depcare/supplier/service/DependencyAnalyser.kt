@@ -7,6 +7,7 @@ import com.appga.depcare.supplier.db.Repository
 import com.appga.depcare.supplier.utils.forEach
 import com.appga.depcare.supplier.utils.getFirstElement
 import com.appga.depcare.supplier.utils.getFirstElementValue
+import com.google.common.annotations.VisibleForTesting
 import mu.KLogging
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.core.KafkaTemplate
@@ -26,7 +27,8 @@ class DependencyAnalyser(
 	}
 
 	@KafkaListener(topics = [KafkaTopics.TOPIC_DEPS])
-	protected fun consumer(url: String) {
+	@VisibleForTesting
+	fun consumer(url: String) {
 		try {
 			logger.info { "Dependency analysis for $url" }
 			val doc = mvnRepoClient.fetchXmlDocument(url)

@@ -29,8 +29,7 @@ class MvnRepoClient(
 
         val body = httpClient.newCall(request).execute().use { response ->
             metrics.mvnRepoPageVisited(url)
-            logger.debug { "Response: ${response.code}" }
-            if (response.code > 400) {
+            if (response.code >= 400) {
                 throw IllegalStateException("Failed request: $url")
             }
             response.body?.string()
@@ -58,7 +57,6 @@ class MvnRepoClient(
 
         return httpClient.newCall(request).execute().use { response ->
             metrics.mvnRepoDocumentFetched(url)
-            logger.debug { "Response: ${response.code}" }
             if (response.code >= 400) {
                 throw IllegalStateException("Failed request: $url")
             }
