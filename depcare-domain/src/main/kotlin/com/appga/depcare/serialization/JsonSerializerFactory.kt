@@ -1,5 +1,10 @@
-package com.appga.depcare.domain
+package com.appga.depcare.serialization
 
+import com.appga.depcare.domain.MvnGroupDir
+import com.appga.depcare.domain.MvnLibraryDir
+import com.appga.depcare.domain.MvnRepoDir
+import com.appga.depcare.domain.MvnRootDir
+import com.appga.depcare.domain.MvnVersionDir
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic

@@ -6,7 +6,6 @@ import edu.uci.ics.crawler4j.url.WebURL
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
-
 @Component
 @Scope("prototype")
 open class MavenRepoCrawler(

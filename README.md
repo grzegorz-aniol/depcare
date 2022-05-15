@@ -81,5 +81,5 @@ Result
 
 ## Pushing URL seed
 ```text
-curl -v http://localhost:8081/api/repo/url -H "Content-Type: text/plain" -X POST -d 'https://repo.spring.io/artifactory/libs-release/org'
+curl -v http://localhost:8080/api/repo/url -H "Content-Type: text/plain" -X POST -d 'https://repo.spring.io/artifactory/libs-release/org'
 ```

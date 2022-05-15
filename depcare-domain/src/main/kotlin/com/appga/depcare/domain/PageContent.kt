@@ -1,10 +1,10 @@
 package com.appga.depcare.crawler
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 class FileMetadata(
     val name: String,
-    val createdAt: LocalDateTime? = null,
+    val publishedAt: Instant? = null,
     val size: Long? = null
 )
 

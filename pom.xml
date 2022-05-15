@@ -20,7 +20,6 @@
         <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlin.version>1.5.31</kotlin.version>
-        <quarkus-plugin.version>1.13.3.Final</quarkus-plugin.version>
         <serialization.version>1.3.1</serialization.version>
         <junit.version>5.7.1</junit.version>
     </properties>
@@ -105,6 +104,11 @@
                 <version>1.12.0</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>3.21.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <repositories>
@@ -136,11 +140,6 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>
-                <plugin>
-                    <groupId>io.quarkus</groupId>
-                    <artifactId>quarkus-maven-plugin</artifactId>
-                    <version>${quarkus-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>

@@ -1,17 +1,27 @@
+server:
+  port: 8082
+
 spring:
- kafka:
+  data:
+    neo4j:
+      uri: bolt://localhost:7687
+      database: db1
+      authentication:
+        username: neo4j
+        password: admin
+  kafka:
     consumer:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: depcare-supplier-group
-server:
-  port: 8082
+
 logging:
   level:
     root: WARN
     org.springframework: WARN
     com.appga.depcare: DEBUG
     edu.uci.ics.crawler4j: WARN
+
 management:
   endpoint:
     metrics.enabled: true

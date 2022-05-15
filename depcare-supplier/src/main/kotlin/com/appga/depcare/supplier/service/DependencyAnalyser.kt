@@ -7,6 +7,7 @@ import com.appga.depcare.supplier.db.Repository
 import com.appga.depcare.supplier.utils.forEach
 import com.appga.depcare.supplier.utils.getFirstElement
 import com.appga.depcare.supplier.utils.getFirstElementValue
+import com.appga.depcare.supplier.utils.getTextValue
 import com.google.common.annotations.VisibleForTesting
 import mu.KLogging
 import org.springframework.kafka.annotation.KafkaListener
@@ -41,6 +42,13 @@ class DependencyAnalyser(
 				val parentVersionIndication = getFirstElement("parent")?.let { getVersionIndication(it) }
 				val thisVersionIndication = getVersionIndication(this)
 				val actualVersionIndication = mergeVersionIndications(parentVersionIndication, thisVersionIndication)
+				val projectProperties = ProjectProperties(
+					parentVersion = parentVersionIndication?.version ?: "",
+					projectVersion = thisVersionIndication.version
+				)
+				getFirstElement("properties")?.run {
+					this.forEach { projectProperties.add(key = it.tagName, value = it.getTextValue() ?: "") }
+				}
 				if (!actualVersionIndication.isValid()) {
 					logger.error { "Cannot find library group, artifact or version in POM xml. Url: $url" }
 					return
@@ -50,7 +58,7 @@ class DependencyAnalyser(
 				}
 				getFirstElement("dependencies")?.run {
 					getElementsByTagName("dependency")?.forEach { dep ->
-						val depIndication = getDependencyIndication(dep)
+						val depIndication = getDependencyIndication(projectProperties, dep)
 						if (depIndication.isValid()) {
 							// Version may not be specified. In such case the right dependency version should be determined by analyzing the parent POM
 							if (depIndication.hasVersion()) {
@@ -77,11 +85,19 @@ class DependencyAnalyser(
 		)
 	}
 
-	private fun getDependencyIndication(element: Element): VersionIndication {
+	private fun getVersionIndication(projectProperties: ProjectProperties, element: Element): VersionIndication {
 		return VersionIndication(
 			element.getFirstElementValue("groupId"),
 			element.getFirstElementValue("artifactId"),
-			element.getFirstElementValue("version"),
+			projectProperties.resolve(element.getFirstElementValue("version")),
+		)
+	}
+
+	private fun getDependencyIndication(projectProperties: ProjectProperties, element: Element): VersionIndication {
+		return VersionIndication(
+			element.getFirstElementValue("groupId"),
+			element.getFirstElementValue("artifactId"),
+			projectProperties.resolve(element.getFirstElementValue("version")),
 			element.getFirstElementValue("scope"),
 			element.getFirstElementValue("optional")?.let { it == "true" },
 			element.getFirstElementValue("type"),
@@ -90,9 +106,10 @@ class DependencyAnalyser(
 
 	private fun mergeVersionIndications(parent: VersionIndication?, current: VersionIndication?): VersionIndication {
 		return VersionIndication(
-			groupId = current?.groupId ?: parent?.groupId,
+			groupId = current?.groupId?.takeIf { it.isNotBlank() } ?: parent?.groupId,
 			artifactId = current?.artifactId,
-			version = current?.version ?: parent?.version
+			version = current?.version?.takeIf { it.isNotBlank() } ?: parent?.version?.takeIf { it.isNotBlank() } ?: ""
 		)
 	}
+
 }

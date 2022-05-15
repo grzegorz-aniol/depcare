@@ -5,11 +5,13 @@ import mu.KotlinLogging
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 
 @RestController
+@RequestMapping
 class MavenCrawlController(
 	val crawlController: CrawlController,
 	val crawlerFactory: MavenRepoCrawlerFactory,

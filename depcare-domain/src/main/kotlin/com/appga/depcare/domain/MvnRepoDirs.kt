@@ -1,8 +1,9 @@
 package com.appga.depcare.domain
 
+import com.appga.depcare.serialization.LocalDateTimeSerializer
 import kotlinx.serialization.Serializable
 import java.net.URL
-import java.time.LocalDateTime
+import java.time.Instant
 
 operator fun URL.plus(path: String): URL {
 	return URL(this.toString().trim('/') + "/" + path.trim('/'))
@@ -43,6 +44,6 @@ data class MvnVersionDir(
 	val artifactId: String,
 	val version: String,
 	@Serializable(with = LocalDateTimeSerializer::class)
-	val createdAt: LocalDateTime? = null,
-	val fileSize: Long? = null,
+	val publishedAt: Instant? = null,
+	val approxFileSize: Long? = null,
 ) : MvnRepoDir()

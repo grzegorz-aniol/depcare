@@ -2,7 +2,9 @@ package com.appga.depcare.crawler
 
 import mu.KLogging
 import org.springframework.stereotype.Component
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToLong
 
@@ -12,7 +14,7 @@ class PageAnalyzer {
 
 	private val regexLink = Regex("<a href=\"([^\"]+)\"")
 	private val regexHeader = Regex("<h1>(?:Index of )?(.+)</h1>")
-	private val regexFiles = Regex("<a href=\"([^\"]+)\".+<\\/a>\\s+(\\S{2,4}-\\S{2,4}-\\S{2,4} \\d{2}:\\d{2})\\s+(\\d(?:\\.\\d+)?+)( [kKmMgG]B)?.+")
+	private val regexFiles = Regex("<a href=\"([^\"]+)\".+<\\/a>\\s+(\\S{2,4}-\\S{2,4}-\\S{2,4} \\d{2}:\\d{2})\\s+([\\.\\d]+)\\s([kKmMgG]B)?")
 	private val datFormats = listOf(
 		DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"),
 		DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm"),
@@ -48,7 +50,7 @@ class PageAnalyzer {
 			}
 			fileName to FileMetadata(
 				name = fileName,
-				createdAt = dateTime,
+				publishedAt = dateTime,
 				size = size.roundToLong()
 			)
 		}.toMap()
@@ -70,10 +72,10 @@ class PageAnalyzer {
 		)
 	}
 
-	private fun parseDateTime(input: String): LocalDateTime? {
+	private fun parseDateTime(input: String): Instant? {
 		return datFormats.mapNotNull { pattern ->
 			try {
-				LocalDateTime.parse(input, pattern)
+				LocalDateTime.parse(input, pattern).toInstant(ZoneOffset.UTC)
 			} catch (ex: Exception) {
 				null
 			}

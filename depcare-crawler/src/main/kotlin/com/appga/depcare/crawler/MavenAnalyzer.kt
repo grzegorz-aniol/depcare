@@ -3,13 +3,13 @@ package com.appga.depcare.crawler
 import com.appga.depcare.crawler.metrics.MetricsService
 import com.appga.depcare.domain.JvmLibrary
 import com.appga.depcare.domain.JvmLibraryVersion
+import com.appga.depcare.domain.MavenRepoMetadata
 import com.appga.depcare.domain.MvnGroupDir
 import com.appga.depcare.domain.MvnLibraryDir
 import com.appga.depcare.domain.MvnRepoDir
 import com.appga.depcare.domain.MvnRootDir
 import com.appga.depcare.domain.MvnVersionDir
 import edu.uci.ics.crawler4j.crawler.Page
-import edu.uci.ics.crawler4j.crawler.WebCrawler
 import edu.uci.ics.crawler4j.parser.HtmlParseData
 import edu.uci.ics.crawler4j.url.WebURL
 import io.micrometer.core.annotation.Timed
@@ -30,9 +30,21 @@ class MavenAnalyzer(
 
 ) {
 	private val logger = KotlinLogging.logger {}
-
-
 	private val regexAcceptLinks = Regex(".*(\\.xml)$")
+	private val repositoryPathPrefixesByLengthDesc: Map<MavenRepoMetadata, List<String>> = MavenRepoMetadata.values().associateWith {
+		val pathParts = it.rootPath.split('/')
+		val prefixes = mutableListOf<String>()
+		var prefix = ""
+		pathParts.reversed()
+			.map{ it.trim('/') }
+			.filter { it.isNotBlank() }
+			.forEach {
+				prefix = "$it/$prefix"
+				prefixes.add(prefix)
+			}
+		prefixes.sortedByDescending { it.length }
+	}
+
 
 	@Timed(value = "crawler.should-visit-time")
 	fun shouldVisit(referringPage: Page?, url: WebURL?): Boolean {
@@ -101,8 +113,8 @@ class MavenAnalyzer(
 					url = repoDir.url,
 					pomUrl = repoDir.pomUrl,
 					jarUrl = repoDir.jarUrl,
-					createdAt = repoDir.createdAt,
-					fileSize = repoDir.fileSize,
+					publishedAt = repoDir.publishedAt,
+					approxFileSize = repoDir.approxFileSize,
 					fileName = repoDir.fileName,
 				)
 				logger.debug { "Found new version page ${repoDir.url}"}
@@ -118,7 +130,7 @@ class MavenAnalyzer(
 		return when {
 			pageContent.links.any { rootDirFiles.contains(it) } -> MvnRootDir(url = pageContent.url)
 			metadataFiles.isNotEmpty() -> {
-				val packageName = pageContent.header.substringBeforeLast("/").replace('/', '.')
+				val packageName = deletePathPrefixForRepositoryRootFolder(pageContent.url, pageContent.header.substringBeforeLast("/").replace('/', '.'))
 				val libraryName = pageContent.header.substringAfterLast("/")
 				MvnLibraryDir(
 					url = pageContent.url,
@@ -128,11 +140,11 @@ class MavenAnalyzer(
 				)
 			}
 			pageContent.links.any { it.endsWith(".pom") || it.endsWith(".jar") } -> {
-				val groupNameWithArtifactName = pageContent.header.substringBeforeLast("/")
+				val groupNameWithArtifactName = deletePathPrefixForRepositoryRootFolder(pageContent.url, pageContent.header.substringBeforeLast("/"))
 				val groupName = groupNameWithArtifactName.substringBeforeLast("/").replace('/', '.')
 				val artifactName = groupNameWithArtifactName.substringAfterLast("/")
 				val version = pageContent.header.substringAfterLast("/")
-				val publicationDateTime = pageContent.files.entries.mapNotNull { it.value.createdAt }.firstOrNull()
+				val publicationDateTime = pageContent.files.entries.mapNotNull { it.value.publishedAt }.firstOrNull()
 				val jarLink = pageContent.findJarLink()
 				val pomLink = pageContent.findPomLink()
 				val jarFileName = jarLink?.trim('/')
@@ -146,14 +158,26 @@ class MavenAnalyzer(
 					groupId = groupName,
 					artifactId = artifactName,
 					version = version,
-					createdAt = publicationDateTime,
-					fileSize = packageFileSize
+					publishedAt = publicationDateTime,
+					approxFileSize = packageFileSize
 				)
 			}
 			else -> {
 				val groupName = pageContent.header.replace('/', '.')
 				MvnGroupDir(url = pageContent.url, groupId = groupName)
 			}
+		}
+	}
+
+	private fun deletePathPrefixForRepositoryRootFolder(url: String, path: String): String {
+		val mavenRepository = MavenRepoMetadata.findByUrl(url)
+		return if (mavenRepository != null) {
+			val prefixes = repositoryPathPrefixesByLengthDesc[mavenRepository]
+			prefixes?.firstOrNull { path.startsWith(it) }
+				?.let { path.substring(it.length) }
+				?: path
+		} else {
+			path
 		}
 	}
 

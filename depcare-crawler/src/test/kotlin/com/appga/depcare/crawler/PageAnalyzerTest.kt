@@ -17,7 +17,7 @@ internal class PageAnalyzerTest {
 
 		// then
 		assertThat(result.links).hasSize(5)
-		assertThat(result.header).isNotEmpty()
+		assertThat(result.header).isEqualTo("be/adaxisoft/Bencode")
 		assertThat(result.files).hasSize(3)
 	}
 
@@ -31,7 +31,7 @@ internal class PageAnalyzerTest {
 
 		// then
 		assertThat(result.links).hasSize(20)
-		assertThat(result.header).isNotEmpty()
+		assertThat(result.header).isEqualTo("libs-release/io/pivotal/cfenv/java-cfenv")
 		assertThat(result.files).hasSize(1)
 	}
 

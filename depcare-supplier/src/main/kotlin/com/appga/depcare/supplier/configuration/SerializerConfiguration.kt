@@ -1,6 +1,6 @@
 package com.appga.depcare.supplier.configuration
 
-import com.appga.depcare.domain.JsonSerializerFactory
+import com.appga.depcare.serialization.JsonSerializerFactory
 import kotlinx.serialization.json.Json
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component

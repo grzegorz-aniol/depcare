@@ -35,7 +35,7 @@ class LibraryMsgConsumer(
 			val metadata = fetchMetaFile(jvmLibrary)
 			repository.saveLibrary(jvmLibrary, metadata)
 		} catch (ex: Exception) {
-			logger.error("Error processing library payload: $payload", ex.message)
+			logger.error("Error processing library payload: $payload", ex)
 		}
 	}
 

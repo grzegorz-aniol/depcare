@@ -1,4 +1,4 @@
-package com.appga.depcare.domain
+package com.appga.depcare.serialization
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

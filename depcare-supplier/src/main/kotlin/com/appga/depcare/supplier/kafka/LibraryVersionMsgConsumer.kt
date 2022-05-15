@@ -34,7 +34,7 @@ class LibraryVersionMsgConsumer(
                 logger.warn { "Cannot find POM for version ${jvmLibraryVersion.url}"}
             }
         } catch (ex: Exception) {
-            logger.error("Error processing version: $jvmLibraryVersion", ex.message)
+            logger.error("Error processing version: $jvmLibraryVersion", ex)
         }
     }
 

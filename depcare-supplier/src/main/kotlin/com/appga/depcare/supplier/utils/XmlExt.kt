@@ -1,5 +1,6 @@
 package com.appga.depcare.supplier.utils
 
+import org.w3c.dom.CharacterData
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
 import java.util.stream.Stream
@@ -12,6 +13,16 @@ fun Element.getFirstElementValue(name: String): String? {
 
 fun Element.getFirstElement(name: String): Element? {
     return firstChildElement(name)
+}
+
+fun Element.forEach(action: (Element) -> Unit) {
+    var child = firstChild
+    while (child != null) {
+        if (child is Element) {
+            action(child)
+        }
+        child = child.nextSibling
+    }
 }
 
 fun NodeList.forEach(action: (Element) -> Unit) {
@@ -37,6 +48,15 @@ fun Element.firstChildElement(name: String): Element? {
             if (node.tagName == name) {
                 return node
             }
+        }
+    }
+    return null
+}
+
+fun Element.getTextValue(): String? {
+    firstChild?.let {
+        if (it is CharacterData) {
+            return it.data
         }
     }
     return null

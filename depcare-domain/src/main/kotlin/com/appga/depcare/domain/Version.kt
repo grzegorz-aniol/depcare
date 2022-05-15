@@ -1,7 +1,8 @@
 package com.appga.depcare.domain
 
+import com.appga.depcare.serialization.InstantSerializer
 import kotlinx.serialization.Serializable
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Serializable
 data class JvmLibraryVersion(
@@ -11,9 +12,9 @@ data class JvmLibraryVersion(
 	val url: String,
 	val pomUrl: String? = null,
 	val jarUrl: String? = null,
-	@Serializable(with = LocalDateTimeSerializer::class)
-	val createdAt: LocalDateTime? = null,
-	val fileSize: Long? = null
+	@Serializable(with = InstantSerializer::class)
+	val publishedAt: Instant? = null,
+	val approxFileSize: Long? = null
 )
 
 data class VersionIndication(

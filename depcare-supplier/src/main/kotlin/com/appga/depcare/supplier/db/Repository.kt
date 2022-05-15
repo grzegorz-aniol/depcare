@@ -9,6 +9,8 @@ import mu.KLogging
 import org.neo4j.driver.Driver
 import org.neo4j.driver.Query
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @Component
 class Repository(private val driver: Driver) {
@@ -144,8 +146,8 @@ class Repository(private val driver: Driver) {
                 Query(
                     """
                         MERGE (lv:Version {artifactId: ${'$'}artifactId, groupId: ${'$'}groupId, version: ${'$'}version})		
-                            ON CREATE SET lv.url=${'$'}versionUrl, lv.createdAt=${'$'}createdAt, lv.fileSize=${'$'}fileSize
-                            ON MATCH SET lv.url=${'$'}versionUrl, lv.createdAt=${'$'}createdAt, lv.fileSize=${'$'}fileSize
+                            ON CREATE SET lv.url=${'$'}versionUrl, lv.publishedAt=${'$'}publishedAt, lv.approxFileSize=${'$'}approxFileSize
+                            ON MATCH SET lv.url=${'$'}versionUrl, lv.publishedAt=${'$'}publishedAt, lv.approxFileSize=${'$'}approxFileSize
                         MERGE (l:Library {groupId: ${'$'}groupId, artifactId: ${'$'}artifactId})
                             ON CREATE set l.url=${'$'}libUrl
                         MERGE (lv)-[:VERSION_OF]->(l)
@@ -157,8 +159,8 @@ class Repository(private val driver: Driver) {
                         "version" to jvmLibraryVersion.version,
                         "versionUrl" to jvmLibraryVersion.url,
                         "libUrl" to jvmLibraryVersion.library.url,
-                        "createdAt" to jvmLibraryVersion.createdAt,
-                        "fileSize" to jvmLibraryVersion.fileSize
+                        "publishedAt" to jvmLibraryVersion.publishedAt?.let { LocalDateTime.ofInstant(it, ZoneOffset.UTC) },
+                        "approxFileSize" to jvmLibraryVersion.approxFileSize
                     )
                 )
             )
