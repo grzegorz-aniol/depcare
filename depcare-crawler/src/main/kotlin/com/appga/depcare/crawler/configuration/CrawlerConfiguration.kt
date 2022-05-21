@@ -23,7 +23,7 @@ class CrawlerConfiguration {
 		config.isIncludeHttpsPages = true
 		config.isProcessBinaryContentInCrawling = false
 		config.isProcessBinaryContentInCrawling = false
-		config.politenessDelay = 100
+		config.politenessDelay = 30
 		config.isResumableCrawling = true
 		config.isRespectNoIndex = false
 		config.isRespectNoFollow = false

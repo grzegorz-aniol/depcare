@@ -39,7 +39,7 @@ data class MvnVersionDir(
 	override val url: String,
 	val pomUrl: String? = null,
 	val jarUrl: String? = null,
-	val fileName: String,
+	val fileName: String?,
 	val groupId: String,
 	val artifactId: String,
 	val version: String,

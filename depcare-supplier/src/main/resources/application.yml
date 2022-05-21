@@ -19,7 +19,7 @@ logging:
   level:
     root: WARN
     org.springframework: WARN
-    com.appga.depcare: DEBUG
+    com.appga.depcare: INFO
     edu.uci.ics.crawler4j: WARN
 
 management:
@@ -27,5 +27,5 @@ management:
     metrics.enabled: true
     prometheus.enabled: true
   endpoints:
-    web.exposure.include: health,info,prometheus
+    web.exposure.include: health,info,prometheus,metrics
   metrics.export.prometheus.enabled: true

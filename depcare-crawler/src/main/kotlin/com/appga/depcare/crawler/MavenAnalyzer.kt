@@ -78,13 +78,16 @@ class MavenAnalyzer(
 		logger.debug("Number of outgoing links: " + links.size)
 		val pageContent = pageAnalyzer.analyse(htmlParseData.html, url)
 		val repoDir = buildMvnRepoObject(pageContent)
-		analyseContent(repoDir)
-
-		if (pageContent.links.isEmpty()) {
-			logger.warn { "Empty page content for url: ${repoDir.url}" }
+		if (repoDir != null) {
+			analyseContent(repoDir)
+			if (pageContent.links.isEmpty()) {
+				logger.warn { "Empty page content for url: ${repoDir.url}" }
+			}
+			logger.debug { "Page: ${pageContent.url}, header: ${pageContent.header}, links count: ${pageContent.links.size}" }
+		} else {
+			logger.warn { "Cannot analyze properly folder ${pageContent.url}" }
 		}
 
-		logger.debug { "Page: ${pageContent.url}, header: ${pageContent.header}, links count: ${pageContent.links.size}" }
 	}
 
 	private fun analyseContent(repoDir: MvnRepoDir) {
@@ -124,19 +127,19 @@ class MavenAnalyzer(
 		}
 	}
 
-	private fun buildMvnRepoObject(pageContent: PageContent): MvnRepoDir {
+	private fun buildMvnRepoObject(pageContent: PageContent): MvnRepoDir? {
 		val rootDirFiles = listOf(ARCHETYPE_CATALOG_NAME, ROBOTS_FILE_NAME)
 		val metadataFiles = pageContent.links.filter { it.startsWith(MAVEN_METADATA_FILE) }.toList()
 		return when {
 			pageContent.links.any { rootDirFiles.contains(it) } -> MvnRootDir(url = pageContent.url)
 			metadataFiles.isNotEmpty() -> {
-				val packageName = deletePathPrefixForRepositoryRootFolder(pageContent.url, pageContent.header.substringBeforeLast("/").replace('/', '.'))
+				val packageName = deletePathPrefixForRepositoryRootFolder(pageContent.url, pageContent.header.substringBeforeLast("/")).replace('/', '.')
 				val libraryName = pageContent.header.substringAfterLast("/")
 				MvnLibraryDir(
 					url = pageContent.url,
 					groupId = packageName,
 					artifactId = libraryName,
-					metadataUrl = pageContent.url + metadataFiles.first()
+					metadataUrl = pageContent.url + metadataFiles.firstOrNull { it == MAVEN_METADATA_FILE }
 				)
 			}
 			pageContent.links.any { it.endsWith(".pom") || it.endsWith(".jar") } -> {
@@ -146,14 +149,17 @@ class MavenAnalyzer(
 				val version = pageContent.header.substringAfterLast("/")
 				val publicationDateTime = pageContent.files.entries.mapNotNull { it.value.publishedAt }.firstOrNull()
 				val jarLink = pageContent.findJarLink()
+				if (jarLink == null) {
+					logger.warn { "JAR not found on page ${pageContent.url}" }
+				}
 				val pomLink = pageContent.findPomLink()
+				require (pomLink != null) { logger.warn { "Cannot find POM for ${pageContent.url}" } }
 				val jarFileName = jarLink?.trim('/')
-				require(jarLink != null && jarFileName != null) { "Cannot find JAR name in the version folder ${pageContent.url}" }
 				val packageFileSize = pageContent.files[jarFileName]?.size
 				MvnVersionDir(
 					url = pageContent.url,
 					pomUrl = pageContent.url + pomLink,
-					jarUrl = pageContent.url + jarLink,
+					jarUrl = jarLink?.let { pageContent.url + it },
 					fileName = jarFileName,
 					groupId = groupName,
 					artifactId = artifactName,

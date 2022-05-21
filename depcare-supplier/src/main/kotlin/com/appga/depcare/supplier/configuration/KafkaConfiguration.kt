@@ -23,11 +23,4 @@ class KafkaConfiguration {
 			.replicas(1)
 			.build()
 
-	@Bean
-	fun depsTopic() =
-		TopicBuilder.name(KafkaTopics.TOPIC_DEPS)
-			.partitions(NUM_PARTITIONS)
-			.replicas(1)
-			.build()
-
 }

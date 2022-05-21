@@ -6,7 +6,7 @@ import java.time.Instant
 
 @Serializable
 data class JvmLibraryVersion(
-	val fileName: String,
+	val fileName: String?,
 	val library: JvmLibrary,
 	val version: String,
 	val url: String,

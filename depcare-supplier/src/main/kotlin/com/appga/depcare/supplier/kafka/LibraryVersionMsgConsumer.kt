@@ -3,7 +3,6 @@ package com.appga.depcare.supplier.kafka
 import com.appga.depcare.domain.JvmLibraryVersion
 import com.appga.depcare.supplier.configuration.KafkaTopics
 import com.appga.depcare.supplier.configuration.SerializerConfiguration
-import com.appga.depcare.supplier.db.Repository
 import com.appga.depcare.supplier.service.DependencyAnalyser
 import kotlinx.serialization.DeserializationStrategy
 import mu.KLogging
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component
 @Component
 class LibraryVersionMsgConsumer(
     private val config: SerializerConfiguration,
-    private val repository: Repository,
 	private val dependencyAnalyser: DependencyAnalyser,
 
 ) {
@@ -27,12 +25,7 @@ class LibraryVersionMsgConsumer(
         logger.info { "Consumer: library version message" }
         val jvmLibraryVersion = deserializePayload(payload)
         try {
-            repository.saveLibraryVersion(jvmLibraryVersion)
-            if (jvmLibraryVersion.pomUrl != null) {
-                dependencyAnalyser.postPomLink(jvmLibraryVersion.pomUrl!!)
-            } else {
-                logger.warn { "Cannot find POM for version ${jvmLibraryVersion.url}"}
-            }
+            dependencyAnalyser.saveVersionWithDependencies(libraryVersion = jvmLibraryVersion)
         } catch (ex: Exception) {
             logger.error("Error processing version: $jvmLibraryVersion", ex)
         }
