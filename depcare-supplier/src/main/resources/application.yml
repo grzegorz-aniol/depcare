@@ -1,12 +1,12 @@
 spring:
   application.name: depcare-supplier
-  data:
-    neo4j:
-      uri: bolt://localhost:7687
-      database: db1
-      authentication:
-        username: neo4j
-        password: admin
+#  data.neo4j.database: xxx
+  neo4j:
+    uri: bolt://localhost:7687
+    database: db1
+    authentication:
+      username: neo4j
+      password: admin
   kafka:
     consumer:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
