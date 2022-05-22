@@ -19,8 +19,8 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.version>1.5.31</kotlin.version>
-        <serialization.version>1.3.1</serialization.version>
+        <kotlin.version>1.6.21</kotlin.version>
+        <serialization.version>1.3.2</serialization.version>
         <junit.version>5.7.1</junit.version>
     </properties>
     <dependencyManagement>
@@ -161,7 +161,7 @@
                             <configuration>
                                 <rules>
                                     <requireJavaVersion>
-                                        <version>[1.8.0-65,15.0)</version>
+                                        <version>[11,15.0)</version>
                                     </requireJavaVersion>
 
                                     <requireNoRepositories>
