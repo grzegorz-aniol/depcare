@@ -17,6 +17,7 @@ import edu.uci.ics.crawler4j.parser.HtmlParseData
 import edu.uci.ics.crawler4j.url.WebURL
 import io.micrometer.core.annotation.Timed
 import mu.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 private const val MAVEN_METADATA_FILE = "maven-metadata.xml"
@@ -29,10 +30,16 @@ class MavenAnalyzer(
 	private val libraryQueueProducer: LibraryQueueProducer,
 	private val libraryVersionQueueProducer: LibraryVersionQueueProducer,
 	private val metricsService: MetricsService
-
 ) {
+	@Value("\${depcare.parentProjectsOnly}")
+	var analyzeParentProjectsOnly: Boolean = false
+
 	private val logger = KotlinLogging.logger {}
+
 	private val regexAcceptLinks = Regex(".*(\\.xml)$")
+	private val parentProjectNameSuffixes = listOf("-bom", "-parent")
+
+
 	private val repositoryPathPrefixesByLengthDesc: Map<MavenRepoMetadata, List<String>> = MavenRepoMetadata.values().associateWith {
 		val pathParts = it.rootPath.split('/')
 		val prefixes = mutableListOf<String>()
@@ -90,6 +97,11 @@ class MavenAnalyzer(
 	private fun analyseContent(repoDir: MvnRepoDir) {
 		when (repoDir) {
 			is MvnLibraryDir -> {
+				if (analyzeParentProjectsOnly) {
+					if (!isParentProjectName(repoDir.artifactId)) {
+						return
+					}
+				}
 				val library = JvmLibrary(
 					name = repoDir.artifactId,
 					groupId = repoDir.groupId,
@@ -101,6 +113,11 @@ class MavenAnalyzer(
 				libraryQueueProducer.send(library)
 			}
 			is MvnVersionDir -> {
+				if (analyzeParentProjectsOnly) {
+					if (!isParentProjectName(repoDir.artifactId)) {
+						return
+					}
+				}
 				val libraryVersion = JvmLibraryVersion(
 					library = JvmLibrary(
 						name = repoDir.artifactId,
@@ -183,5 +200,8 @@ class MavenAnalyzer(
 			path
 		}
 	}
+
+	private fun isParentProjectName(name: String): Boolean =
+		analyzeParentProjectsOnly && parentProjectNameSuffixes.any { name.endsWith(it) }
 
 }

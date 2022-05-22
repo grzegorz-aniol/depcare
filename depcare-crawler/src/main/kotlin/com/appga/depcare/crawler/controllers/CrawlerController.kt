@@ -16,8 +16,8 @@ class CrawlerController(
 	private val logger = KotlinLogging.logger { }
 
 	@PostMapping(path = ["/url"], consumes = [MediaType.TEXT_PLAIN_VALUE])
-	fun postPath(@RequestBody path: String) {
-		logger.debug { "Pushing new url for crawler: $path" }
-
+	fun postPath(@RequestBody url: String) {
+		logger.debug { "Pushing new url for crawler: $url" }
+		crawlerService.addSeed(url)
 	}
 }

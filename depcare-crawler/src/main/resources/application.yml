@@ -17,6 +17,7 @@ logging:
 depcare:
   crawler:
     numOfCrawlers: 4
+  parentProjectsOnly: false
 
 management:
   endpoint:
