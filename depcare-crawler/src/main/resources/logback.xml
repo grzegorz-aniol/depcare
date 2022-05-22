@@ -1,4 +1,5 @@
 <configuration>
+    <springProperty name="application.name" source="spring.application.name"/>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%green(%date) %highlight(%-5level) %magenta([%thread]) %cyan(%logger{10}) %green([%file:%line]) %blue(: %msg%n)</pattern>
@@ -16,15 +17,15 @@
             <includeMarker>true</includeMarker>
             <includeMdcData>true</includeMdcData>
             <includeCallerData>false</includeCallerData>
-            <includeRootCauseData>false</includeRootCauseData>
-            <includeLevelName>false</includeLevelName>
+            <includeRootCauseData>true</includeRootCauseData>
+            <includeLevelName>true</includeLevelName>
             <shortPatternLayout class="ch.qos.logback.classic.PatternLayout">
                 <pattern>%m%nopex</pattern>
             </shortPatternLayout>
             <fullPatternLayout class="ch.qos.logback.classic.PatternLayout">
                 <pattern>%m%n</pattern>
             </fullPatternLayout>
-            <staticField>app_name:backend</staticField>
+            <staticField>app_name:${application.name}</staticField>
             <staticField>os_arch:${os.arch}</staticField>
             <staticField>os_name:${os.name}</staticField>
             <staticField>os_version:${os.version}</staticField>

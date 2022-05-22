@@ -1,15 +1,23 @@
 spring:
- kafka:
+  application.name: depcare-crawler
+  kafka:
     producer:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
 server:
   port: 8080
+
 logging:
   level:
     root: WARN
     org.springframework: WARN
     com.appga.depcare: INFO
     edu.uci.ics.crawler4j: WARN
+
+depcare:
+  crawler:
+    numOfCrawlers: 4
+
 management:
   endpoint:
     metrics.enabled: true
