@@ -1,5 +1,9 @@
 package com.appga.depcare.crawler
 
+import com.appga.depcare.crawler.analyzers.MavenAnalyzer
+import com.appga.depcare.crawler.analyzers.PageAnalyzer
+import com.appga.depcare.crawler.kafka.LibraryQueueProducer
+import com.appga.depcare.crawler.kafka.LibraryVersionQueueProducer
 import com.appga.depcare.crawler.metrics.MetricsService
 import com.appga.depcare.domain.JvmLibraryVersion
 import edu.uci.ics.crawler4j.crawler.CrawlConfig

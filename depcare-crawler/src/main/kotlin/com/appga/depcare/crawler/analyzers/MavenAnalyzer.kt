@@ -1,5 +1,8 @@
-package com.appga.depcare.crawler
+package com.appga.depcare.crawler.analyzers
 
+import com.appga.depcare.crawler.PageContent
+import com.appga.depcare.crawler.kafka.LibraryQueueProducer
+import com.appga.depcare.crawler.kafka.LibraryVersionQueueProducer
 import com.appga.depcare.crawler.metrics.MetricsService
 import com.appga.depcare.domain.JvmLibrary
 import com.appga.depcare.domain.JvmLibraryVersion
@@ -15,7 +18,6 @@ import edu.uci.ics.crawler4j.url.WebURL
 import io.micrometer.core.annotation.Timed
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
-
 
 private const val MAVEN_METADATA_FILE = "maven-metadata.xml"
 private const val ARCHETYPE_CATALOG_NAME = "archetype-catalog.xml"
@@ -48,7 +50,7 @@ class MavenAnalyzer(
 
 	@Timed(value = "crawler.should-visit-time")
 	fun shouldVisit(referringPage: Page?, url: WebURL?): Boolean {
-		val href = url!!.url.toLowerCase()
+		val href = url!!.url.lowercase()
 		val domain = referringPage!!.webURL.domain
 		val isAcceptableLink = href.endsWith("/") || regexAcceptLinks.matches(href)
 		val isSameDomain = href.contains(domain, ignoreCase = true)
@@ -78,16 +80,11 @@ class MavenAnalyzer(
 		logger.debug("Number of outgoing links: " + links.size)
 		val pageContent = pageAnalyzer.analyse(htmlParseData.html, url)
 		val repoDir = buildMvnRepoObject(pageContent)
-		if (repoDir != null) {
-			analyseContent(repoDir)
-			if (pageContent.links.isEmpty()) {
-				logger.warn { "Empty page content for url: ${repoDir.url}" }
-			}
-			logger.debug { "Page: ${pageContent.url}, header: ${pageContent.header}, links count: ${pageContent.links.size}" }
-		} else {
-			logger.warn { "Cannot analyze properly folder ${pageContent.url}" }
+		analyseContent(repoDir)
+		if (pageContent.links.isEmpty()) {
+			logger.warn { "Empty page content for url: ${repoDir.url}" }
 		}
-
+		logger.debug { "Page: ${pageContent.url}, header: ${pageContent.header}, links count: ${pageContent.links.size}" }
 	}
 
 	private fun analyseContent(repoDir: MvnRepoDir) {
@@ -127,7 +124,7 @@ class MavenAnalyzer(
 		}
 	}
 
-	private fun buildMvnRepoObject(pageContent: PageContent): MvnRepoDir? {
+	private fun buildMvnRepoObject(pageContent: PageContent): MvnRepoDir {
 		val rootDirFiles = listOf(ARCHETYPE_CATALOG_NAME, ROBOTS_FILE_NAME)
 		val metadataFiles = pageContent.links.filter { it.startsWith(MAVEN_METADATA_FILE) }.toList()
 		return when {

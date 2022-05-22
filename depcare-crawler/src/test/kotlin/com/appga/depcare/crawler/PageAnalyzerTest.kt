@@ -1,5 +1,6 @@
 package com.appga.depcare.crawler
 
+import com.appga.depcare.crawler.analyzers.PageAnalyzer
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

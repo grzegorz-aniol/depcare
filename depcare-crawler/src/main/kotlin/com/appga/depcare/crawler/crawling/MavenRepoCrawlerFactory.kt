@@ -1,4 +1,4 @@
-package com.appga.depcare.crawler
+package com.appga.depcare.crawler.crawling
 
 import edu.uci.ics.crawler4j.crawler.CrawlController
 import mu.KotlinLogging

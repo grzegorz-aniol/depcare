@@ -1,5 +1,7 @@
-package com.appga.depcare.crawler
+package com.appga.depcare.crawler.analyzers
 
+import com.appga.depcare.crawler.FileMetadata
+import com.appga.depcare.crawler.PageContent
 import mu.KLogging
 import org.springframework.stereotype.Component
 import java.time.Instant

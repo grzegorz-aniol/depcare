@@ -1,5 +1,6 @@
-package com.appga.depcare.crawler
+package com.appga.depcare.crawler.crawling
 
+import com.appga.depcare.crawler.analyzers.MavenAnalyzer
 import edu.uci.ics.crawler4j.crawler.Page
 import edu.uci.ics.crawler4j.crawler.WebCrawler
 import edu.uci.ics.crawler4j.url.WebURL

@@ -44,7 +44,7 @@ class CrawlerConfiguration {
 	fun robotstxtServer(robotstxtConfig: RobotstxtConfig, pageFetcher: PageFetcher) = RobotstxtServer(robotstxtConfig, pageFetcher)
 
 	@Bean
-	fun crawlerController(crawlConfig: CrawlConfig, pageFetcher: PageFetcher, robotstxtServer: RobotstxtServer) =
+	fun crawlController(crawlConfig: CrawlConfig, pageFetcher: PageFetcher, robotstxtServer: RobotstxtServer) =
 		CrawlController(crawlConfig, pageFetcher, robotstxtServer)
 
 }
