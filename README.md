@@ -4,7 +4,7 @@ Depcare is created in order to analyze dependencies between Maven modules. Syste
 Firstly, depcare-crawler service, is analyzing Maven repository content and sends information about libraries and versions found to Kafka topic. 
 Secondly, depcare-supplier takes care for deeper analyzis of module version dependencies. Service fetches library's version POM file and store in database a graph of dependencies. 
 
-Depcare uses Neo4j as a primary database storage. Using graph database is not accidentally. Graph database fits perfectly for such type of use case.
+Depcare uses Neo4j as a primary database storage. Use of graph database technology is not accidental. Graph database fits perfectly for such type of use case.
 
 Project uses also auxiliary services, like Prometheus, Grafana, Elastic Search, Logstash and Kibana for logging and infrastructure monitoring.
 
