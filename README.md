@@ -1,9 +1,28 @@
-# depcare
+# Depcare
 
-## Repositories
+Depcare is created in order to analyze dependencies between Maven modules. System is divided into two parts.
+Firstly, depcare-crawler service, is analyzing Maven repository content and sends information about libraries and versions found to Kafka topic. 
+Secondly, depcare-supplier takes care for deeper analyzis of module version dependencies. Service fetches library's version POM file and store in database a graph of dependencies. 
+
+Depcare uses Neo4j as a primary database storage. Using graph database is not accidentally. Graph database fits perfectly for such type of use case.
+
+Project uses also auxiliary services, like Prometheus, Grafana, Elastic Search, Logstash and Kibana for logging and infrastructure monitoring.
+
+
+### Creating seed for crawler service
+```text
+curl -v http://localhost:8080/api/repo/url -H "Content-Type: text/plain" -X POST -d 'https://repo.spring.io/artifactory/libs-release/org'
+```
+
+## Maven repositories
+
+Depcare has been tested with two repositories: Maven Central and Spring Libs Release. 
+
+### Repositories
 * Spring repository:  `https://repo.spring.io/artifactory/libs-release/`
 * Maven repository: `https://repo1.maven.org/maven2/`
 
+### Examples of repository content
 Fetching page in HTML:
 ```
 curl -L https://repo.spring.io/artifactory/libs-release/io -H "Accept: application/xml, */*" -X GET
@@ -79,7 +98,3 @@ Result
 <a href="maven-metadata.xml.sha512" title="maven-metadata.xml.sha512">maven-metadata.xml.sha512</a>                         2021-03-01 21:40       128 
 ```
 
-## Pushing URL seed
-```text
-curl -v http://localhost:8080/api/repo/url -H "Content-Type: text/plain" -X POST -d 'https://repo.spring.io/artifactory/libs-release/org'
-```
