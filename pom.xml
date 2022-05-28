@@ -23,6 +23,9 @@
         <serialization.version>1.3.2</serialization.version>
         <junit.version>5.7.1</junit.version>
     </properties>
+    <scm>
+        <developerConnection>scm:git:https://github.com/grzegorz-aniol/depcare.git</developerConnection>
+    </scm>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -186,6 +189,15 @@
                             </configuration>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>3.0.0-M1</version>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <tagNameFormat>@{project.version}</tagNameFormat>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
