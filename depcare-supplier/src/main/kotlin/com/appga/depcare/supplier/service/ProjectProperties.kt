@@ -6,7 +6,7 @@ class ProjectProperties {
 	private val properties = mutableMapOf<String, String>()
 	private val regexVariable = Regex("\\$\\{([^\\}]+)\\}")
 	private val projectVersionVariables = listOf("project.version", "version")
-	private val parentVersionVariables = listOf("parent.project.version", "parent.version")
+	private val parentVersionVariables = listOf("parent.project.version", "project.parent.version", "parent.version")
 
 	constructor(parentVersion: String, projectVersion: String?) {
 		setProjectVersion(parentVersion, projectVersion?.let { resolve(it) } ?: "")
