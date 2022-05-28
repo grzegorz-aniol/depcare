@@ -1,18 +1,15 @@
 package com.appga.depcare.supplier.service
 
-import java.lang.Math.abs
-
 class ProjectProperties {
-	private val projectVersion: String
-	private val parentProjectVersion: String
+	private lateinit var projectVersion: String
+	private var parentProjectVersion: String? = null
 	private val properties = mutableMapOf<String, String>()
 	private val regexVariable = Regex("\\$\\{([^\\}]+)\\}")
 	private val projectVersionVariables = listOf("project.version", "version")
 	private val parentVersionVariables = listOf("parent.project.version", "parent.version")
 
 	constructor(parentVersion: String, projectVersion: String?) {
-		this.parentProjectVersion = parentVersion
-		this.projectVersion = projectVersion?.let { resolve(it) } ?: ""
+		setProjectVersion(parentVersion, projectVersion?.let { resolve(it) } ?: "")
 	}
 
 	fun add(key: String, value: String) {
@@ -23,6 +20,18 @@ class ProjectProperties {
 
 	fun resolve(value: String?): String? {
 		return value?.let { internalResolve(it, mutableSetOf()) }
+	}
+
+	fun setProjectVersion(parentVersion: String?, projectVersion: String) {
+		this.parentProjectVersion = parentVersion
+		this.projectVersion = projectVersion
+
+		if (parentVersion?.isNotBlank() == true) {
+			parentVersionVariables.forEach { variable -> add(variable, parentVersion) }
+		}
+		if (projectVersion.isNotBlank()) {
+			projectVersionVariables.forEach { variable -> add(variable, projectVersion) }
+		}
 	}
 
 	private fun internalResolve(value: String, variables: MutableSet<String>): String? {
@@ -42,7 +51,8 @@ class ProjectProperties {
 			variables.remove(variableName)
 
 			result to range
-		}.toList()
+		}.filter { it.first != null }
+			.toList()
 		var indexCorrection = 0
 		replacements.forEach {
 			val newValue = it.first ?: ""

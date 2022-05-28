@@ -71,17 +71,19 @@ class DependencyAnalyserTest {
 			)
 		) } just Runs
 		every { repository.saveTransitiveDependency(any(), any()) } just Runs
+		every { repository.saveLibraryVersion(any()) } just Runs
 		val libraryVersion = JvmLibraryVersion(
-			url = "https://repo1.maven.org/maven2/ai/catboost/catboost-spark_2.4_2.12/0.25/catboost-spark_2.4_2.12-0.25.pom",
+			url = "https://repo1.maven.org/maven2/ai/catboost/catboost-spark_2.4_2.12/0.25/",
 			library = JvmLibrary(
 				groupId = "ai.catboost",
 				artifactId = "catboost-spark_2.4_2.12",
 				name = "catboost-spark_2.4_2.12-0.25",
-				url = "",
+				url = "https://repo1.maven.org/maven2/ai/catboost/catboost-spark_2.4_2.12/",
 				metadataUrl = "",
 			),
 			version = "0.25",
 			fileName = "catboost-spark_2.4_2.12-0.25.jar",
+			pomUrl = "https://repo1.maven.org/maven2/ai/catboost/catboost-spark_2.4_2.12/0.25/catboost-spark_2.4_2.12-0.25.pom",
 		)
 
 		// when
@@ -93,7 +95,10 @@ class DependencyAnalyserTest {
 			dependency = VersionIndication(
 				groupId = "ai.catboost",
 				artifactId = "catboost-common",
-				version = "0.25"
+				version = "0.25",
+				scope = null,
+				optional = null,
+				type = null,
 			)
 		) }
 	}

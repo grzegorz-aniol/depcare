@@ -20,6 +20,8 @@ class DependencyAnalyser(
 ) {
 	private companion object : KLogging()
 
+	private data class PomVersionIndications(val parent: VersionIndication?, val project: VersionIndication)
+
 	@VisibleForTesting
 	fun saveVersionWithDependencies(libraryVersion: JvmLibraryVersion) {
 		repository.saveLibraryVersion(libraryVersion)
@@ -32,50 +34,74 @@ class DependencyAnalyser(
 	fun analyzePom(url: String, groupId: String, artifactId: String, version: String) {
 		logger.info { "Fetching version POM for $url" }
 		val doc = mvnRepoClient.fetchXmlDocument(url)
+
 		val rootElement = doc.documentElement
 		if (rootElement == null) {
 			logger.error { "Missing root xml element" }
 			return
 		}
-		rootElement.run {
-			val parentVersionIndication = getFirstElement("parent")?.let { getVersionIndication(it) }
-			val thisVersionIndication = getVersionIndication(this)
-			val actualVersionIndication = mergeVersionIndications(parentVersionIndication, thisVersionIndication)
-			if (actualVersionIndication.groupId != groupId ||
-				actualVersionIndication.artifactId != artifactId ||
-				actualVersionIndication.version != version) {
-				logger.warn { "Library version from POM $actualVersionIndication is different than in repository $groupId:$artifactId:$version" }
-			}
-			val projectProperties = ProjectProperties(
-				parentVersion = parentVersionIndication?.version ?: "",
-				projectVersion = thisVersionIndication.version
-			)
-			getFirstElement("properties")?.run {
-				this.forEach { projectProperties.add(key = it.tagName, value = it.getTextValue() ?: "") }
-			}
-			if (!actualVersionIndication.isValid()) {
-				logger.error { "Cannot find library group, artifact or version in POM xml. Url: $url" }
-				return
-			}
-			if (parentVersionIndication != null && parentVersionIndication.isValid()) {
-				repository.saveParentProject(actualVersionIndication, parentVersionIndication)
-			}
-			getFirstElement("dependencies")?.run {
-				getElementsByTagName("dependency")?.forEach { dep ->
-					val depIndication = getDependencyIndication(projectProperties, dep)
-					if (depIndication.isValid()) {
-						// Version may not be specified. In such case the right dependency version should be determined by analyzing the parent POM
-						if (depIndication.hasVersion()) {
-							repository.saveDependency(actualVersion = actualVersionIndication, dependency = depIndication)
-						} else {
-							repository.saveTransitiveDependency(actualVersion = actualVersionIndication, dependency = depIndication)
-						}
+
+		var pomVersions = getPomVersionIndications(rootElement)
+
+		val projectProperties = getPomProperties(rootElement, pomVersions)
+
+		pomVersions = resolvePropertiesInVersionIndication(pomVersions, projectProperties)
+
+		val actualVersionIndication = mergeVersionIndications(pomVersions.parent, pomVersions.project, version)
+		if (!actualVersionIndication.isValid()) {
+			logger.error { "Cannot find library group, artifact or version in POM xml. Url: $url" }
+			return
+		}
+		if (actualVersionIndication.groupId != groupId ||
+			actualVersionIndication.artifactId != artifactId ||
+			actualVersionIndication.version != version) {
+			logger.warn { "Library version from POM $actualVersionIndication is different than in repository $groupId:$artifactId:$version" }
+		}
+
+		projectProperties.setProjectVersion(pomVersions.parent?.version, actualVersionIndication.version ?: version)
+
+		pomVersions.parent?.takeIf { it.isValid() }?.let { parentVersion ->
+			repository.saveParentProject(actualVersionIndication, parentVersion)
+		}
+
+		rootElement.getFirstElement("dependencies")?.let { dependencies ->
+			dependencies.getElementsByTagName("dependency")?.forEach { dep ->
+				val depIndication = getDependencyIndication(projectProperties, dep)
+				if (depIndication.isValid()) {
+					// Version may not be specified. In such case the right dependency version should be determined by analyzing the parent POM
+					if (depIndication.hasVersion()) {
+						repository.saveDependency(actualVersion = actualVersionIndication, dependency = depIndication)
 					} else {
-						logger.error { "Cannot find library dependency group, artifact or version ($url)" }
+						repository.saveTransitiveDependency(actualVersion = actualVersionIndication, dependency = depIndication)
 					}
+				} else {
+					logger.error { "Cannot find library dependency group, artifact or version ($url)" }
 				}
 			}
 		}
+	}
+
+	private fun getPomProperties(rootElement: Element, pomVersions: PomVersionIndications): ProjectProperties {
+		// read and resolve properties
+		val projectProperties = ProjectProperties(
+			parentVersion = pomVersions.parent?.version ?: "",
+			projectVersion = pomVersions.project.version
+		)
+		rootElement.getFirstElement("properties")?.run {
+			this.forEach { projectProperties.add(key = it.tagName, value = it.getTextValue() ?: "") }
+		}
+		return projectProperties
+	}
+
+	private fun getPomVersionIndications(rootElement: Element): PomVersionIndications {
+		// get original project and parent project indication
+		val parentVersionIndication = rootElement.getFirstElement("parent")?.let { getVersionIndication(it) }
+		val thisVersionIndication = getVersionIndication(rootElement)
+
+		return PomVersionIndications(
+			parent = parentVersionIndication,
+			project = thisVersionIndication,
+		)
 	}
 
 	private fun getVersionIndication(element: Element): VersionIndication {
@@ -105,12 +131,23 @@ class DependencyAnalyser(
 		)
 	}
 
-	private fun mergeVersionIndications(parent: VersionIndication?, current: VersionIndication?): VersionIndication {
+	private fun mergeVersionIndications(parent: VersionIndication?, current: VersionIndication?, expected: String): VersionIndication {
 		return VersionIndication(
 			groupId = current?.groupId?.takeIf { it.isNotBlank() } ?: parent?.groupId,
 			artifactId = current?.artifactId,
-			version = current?.version?.takeIf { it.isNotBlank() } ?: parent?.version?.takeIf { it.isNotBlank() } ?: ""
+			version = current?.version?.takeIf { it.isNotBlank() } ?: parent?.version?.takeIf { it.isNotBlank() } ?: expected
 		)
 	}
 
+	private fun resolvePropertiesInVersionIndication(pomVersionIndications: PomVersionIndications, projectProperties: ProjectProperties): PomVersionIndications {
+		return PomVersionIndications(
+			parent = pomVersionIndications.parent?.let { resolveVersionIndication(it, projectProperties) },
+			project = resolveVersionIndication(pomVersionIndications.project, projectProperties)
+		)
+	}
+
+	private fun resolveVersionIndication(versionIndication: VersionIndication, projectProperties: ProjectProperties): VersionIndication {
+		val resolvedValue = projectProperties.resolve(versionIndication.version)
+		return versionIndication.copy(version = resolvedValue)
+	}
 }
