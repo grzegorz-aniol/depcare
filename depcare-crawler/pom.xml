@@ -5,10 +5,10 @@
     <parent>
         <groupId>com.appga.depcare</groupId>
         <artifactId>depcare-parent</artifactId>
-        <version>1.0</version>
+        <version>1.1-SNAPSHOT</version>
     </parent>
     <artifactId>depcare-crawler</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     <name>depcare-crawler</name>
 
     <description>Maven repository crawler</description>
