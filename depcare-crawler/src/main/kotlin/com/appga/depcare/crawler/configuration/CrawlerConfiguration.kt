@@ -38,7 +38,11 @@ class CrawlerConfiguration {
 	fun pageFetcher(crawlConfig: CrawlConfig): PageFetcher = PageFetcher(crawlConfig)
 
 	@Bean
-	fun robotstxtConfig() = RobotstxtConfig()
+	fun robotstxtConfig(): RobotstxtConfig {
+		val config = RobotstxtConfig()
+		config.isEnabled = false
+		return config
+	}
 
 	@Bean
 	fun robotstxtServer(robotstxtConfig: RobotstxtConfig, pageFetcher: PageFetcher) = RobotstxtServer(robotstxtConfig, pageFetcher)
